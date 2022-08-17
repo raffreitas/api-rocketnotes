@@ -30,7 +30,7 @@ class NotesController {
 
     await knex("tags").insert(tagsInsert);
 
-    return response.status(201).json();
+    return response.json();
   }
 
   async show(request, response) {
@@ -62,7 +62,7 @@ class NotesController {
 
     let notes;
 
-    if (notes) {
+    if (tags) {
       const filterTags = tags.split(',').map(tag => tag.trim());
 
       notes = await knex("tags")
@@ -75,6 +75,7 @@ class NotesController {
         .whereLike("notes.title", `%${title}%`)
         .whereIn("name", filterTags)
         .innerJoin("notes", "notes.id", "tags.note_id")
+        .groupBy("notes.id")
         .orderBy("notes.title");
 
     } else {
@@ -92,7 +93,7 @@ class NotesController {
         ...note,
         tags: noteTags
       }
-    })
+    });
 
     return response.json(notesWithTags);
   }
